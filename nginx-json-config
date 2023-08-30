@@ -1,0 +1,44 @@
+# /etc/nginx/nginx.conf  
+```
+log_format json escape=json '{'
+    '"time": "$time_iso8601",'
+    '"remote_addr": "$remote_addr",'
+    '"host": "$remote_addr",'
+    '"port": "$remote_port",'
+    '"method": "$request_method",'
+    '"uri": "$request_uri",'
+    '"status": "$status",'
+    '"body_bytes": "$body_bytes_sent",'
+    '"referer": "$http_referer",'
+    '"ua": "$http_user_agent", '
+    '"request_time": "$request_time",'
+    '"response_time": "$upstream_response_time"'
+'}';
+
+access_log /var/log/nginx/access.log json;
+```
+
+# restart nginx
+sudo nginx -t
+sudo systemctl reload nginx
+
+# install alp
+wget https://github.com/tkuchiki/alp/releases/download/v1.0.15/alp_linux_amd64.zip
+unzip alp_linux_amd64.zip
+sudo install ./alp /usr/local/bin
+
+# log rotate
+sudo mv /var/log/nginx/access.log /var/log/nginx/access.log.old.`date +%Y%m%d-%H%M%S`
+sudo nginx -s reopen
+
+# nginx log analysis
+cp /var/log/nginx/access.log ./
+alp json --file access.log
+alp json -o count,method,uri,min,avg,max --file access.log
+
+# install ab command
+sudo apt update
+sudo apt install apache2-utils
+
+# run stress-test
+ab -c 1 -n 10 http://localhost/

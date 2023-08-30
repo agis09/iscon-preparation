@@ -1,0 +1,19 @@
+# /etc/mysql/mysql.conf.d/mysqld.cnf
+
+```
+[mysqld]
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/mysql-slow.log
+long_query_time = 0
+```
+
+# restart mysql
+sudo systemctl restart mysql
+
+# analyse slow log
+sudo mysqldumpslow /var/log/mysql/mysql-slow.log
+
+# install pt-query-toolkit
+sudo apt update
+sudo apt install percona-toolkit
+
